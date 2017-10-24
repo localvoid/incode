@@ -1,12 +1,10 @@
-`incode` is a simple library for building code injectors.
+`incode` is a library for building code injectors.
 
 ## Example
 
 Code with injectable regions:
 
 ```js
-import * as __pck from "pck-browser";
-
 // inj:assign({ schema: "User" })
 class User {
   // inj:emit("pck")
@@ -31,8 +29,6 @@ const s = inject(
 Result after injection:
 
 ```js
-import * as __pck from "pck-browser";
-
 // inj:assign({ schema: "User" })
 class User {
   // inj:emit("pck")
@@ -45,6 +41,7 @@ class User {
 
 - Block-scoped variables
 - Indentation autodection for injectable regions
+- Automatic removal of existing code in injectable regions
 
 ## Directives
 
@@ -71,13 +68,22 @@ interface InjectableRegion {
   readonly end: number;
 }
 
-function extractRegions(text: string, directiveMatcher: RegExp, data = {}): InjectableRegion[];
+function extractRegions(
+  text: string,
+  directiveMatcher: RegExp,
+  data = {},
+): InjectableRegion[];
 ```
 
 `extractRegions` extracts `InjectableRegions` from `text`.
 
 ```ts
-function inject(text: string, directiveMatcher: RegExp, cb: (region: InjectableRegion) => string, data = {}): string;
+function inject(
+  text: string,
+  directiveMatcher: RegExp,
+  cb: (region: InjectableRegion) => string,
+  data = {},
+): string;
 ```
 
 `inject` invokes `cb` function and injects its result into a text.
