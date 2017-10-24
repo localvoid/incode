@@ -58,6 +58,28 @@ export interface InjectableRegion {
   readonly end: number;
 }
 
+export interface SourcePosition {
+  line: number;
+  col: number;
+}
+
+export abstract class InvalidSourceError extends Error {
+  position: SourcePosition | null;
+
+  constructor(message: string, position: SourcePosition | null = null) {
+    super(message);
+    this.position = position;
+  }
+
+  setPosition(position: SourcePosition): void {
+    this.position = position;
+    this.message = `${positionToString(this.position)} ${this.message}`;
+  }
+}
+
+export class InvalidDirectiveError extends InvalidSourceError { }
+export class InvalidRegionError extends InvalidSourceError { }
+
 export function createDirectiveMatcher(prefix: string): RegExp {
   return new RegExp(`^[ \t]*(\/\/\\s+${prefix}:(.+))$`, "gm");
 }
@@ -97,39 +119,51 @@ function directiveTypeFromString(s: string): DirectiveType {
     case "emit":
       return DirectiveType.Emit;
   }
-  throw new Error(`Invalid directive type: ${s}`);
+  throw new InvalidDirectiveError(`Invalid directive type: ${s}`);
 }
 
 function parseDirective(s: string): { type: DirectiveType, arg: {} | null } {
   const pStart = s.indexOf("(");
-  if (pStart === -1) {
+  if (pStart !== -1) {
     const type = directiveTypeFromString(s.substring(0, pStart));
     switch (type) {
       case DirectiveType.Start:
       case DirectiveType.End:
-        throw new Error(`Invalid directive. ${DirectiveType[type]} directive should not have arguments`);
+        throw new InvalidDirectiveError(
+          `Invalid directive. ${DirectiveType[type]} directive should not have arguments`,
+        );
     }
     const pEnd = s.lastIndexOf(")");
     if (pEnd === -1) {
-      throw new Error(`Invalid directive. Unable to find closing parenthesis in a directive "${s}"`);
+      throw new InvalidDirectiveError(
+        `Invalid directive. Unable to find closing parenthesis in a directive "${s}"`,
+      );
     }
     const sArg = s.substring(pStart + 1, pEnd);
     let arg;
     try {
       arg = JSON.parse(sArg);
     } catch {
-      throw new Error(`Invalid directive. Unable to parse(JSON.parse) directive argument "${sArg}"`);
+      throw new InvalidDirectiveError(
+        `Invalid directive. Unable to parse(JSON.parse) directive argument "${sArg}"`,
+      );
     }
     switch (type) {
       case DirectiveType.Assign:
       case DirectiveType.Merge:
         if (typeof arg !== "object" || arg === null) {
-          throw new Error(`Invalid ${DirectiveType[type]} directive. Argument should have an object type`);
+          throw new InvalidDirectiveError(
+            `Invalid ${DirectiveType[type]} directive. Argument should have an object type`,
+          );
         }
+        break;
       case DirectiveType.Emit:
         if (typeof arg !== "string") {
-          throw new Error(`Invalid Emit directive. Argument should have a string type`);
+          throw new InvalidDirectiveError(
+            `Invalid Emit directive. Argument should have a string type`,
+          );
         }
+        break;
     }
     return { type, arg };
   } else {
@@ -138,7 +172,9 @@ function parseDirective(s: string): { type: DirectiveType, arg: {} | null } {
       case DirectiveType.Assign:
       case DirectiveType.Merge:
       case DirectiveType.Emit:
-        throw new Error(`Invalid directive. ${DirectiveType[type]} directive should have arguments`);
+        throw new InvalidDirectiveError(
+          `Invalid directive. ${DirectiveType[type]} directive should have arguments`,
+        );
     }
     return { type, arg: null };
   }
@@ -156,7 +192,10 @@ function extractDirectives(directiveMatcher: RegExp, text: string): Directive[] 
     try {
       directive = parseDirective(match[2]);
     } catch (e) {
-      throw new Error(positionToString(positionFromOffset(text, start)) + " " + e.message);
+      if (e instanceof InvalidSourceError) {
+        e.setPosition(positionFromOffset(text, start));
+      }
+      throw e;
     }
     const padding = fullMatch.substring(0, fullMatch.length - comment.length);
 
@@ -189,15 +228,15 @@ function enterEmit(
         regions.push({ type, data, padding, start, end: directive.start });
         return index;
       default:
-        throw new Error(
-          positionToString(positionFromOffset(text, directive.start)) +
-          " Emit region should not contain any directives",
+        throw new InvalidRegionError(
+          "Emit region should not contain any directives",
+          positionFromOffset(text, directive.start),
         );
     }
   }
-  throw new Error(
-    positionToString(positionFromOffset(text, start)) +
+  throw new InvalidRegionError(
     "Emit region should end with End directive",
+    positionFromOffset(text, start),
   );
 }
 
@@ -238,12 +277,12 @@ function enterScope(
     }
   }
   if (scopes > 0) {
-    throw new Error(`All scopes should end with End directive`);
+    throw new InvalidRegionError(`All scopes should end with End directive`);
   }
   return index;
 }
 
-function positionFromOffset(s: string, offset: number): { line: number, col: number } {
+function positionFromOffset(s: string, offset: number): SourcePosition {
   if (offset > s.length) {
     throw new Error("Invalid offset. Offset is pointing outside of text");
   }
@@ -262,7 +301,7 @@ function positionFromOffset(s: string, offset: number): { line: number, col: num
   return { line, col };
 }
 
-function positionToString(pos: { line: number, col: number }): string {
+function positionToString(pos: SourcePosition): string {
   return `[${pos.line}:${pos.col}]`;
 }
 
