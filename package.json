@@ -1,0 +1,77 @@
+{
+  "name": "incode",
+  "main": "dist/cjs/index.js",
+  "module": "dist/js/index.js",
+  "typings": "dist/typings/index.d.ts",
+  "version": "0.1.0",
+  "description": "Code injection library",
+  "license": "MIT",
+  "author": {
+    "name": "Boris Kaul",
+    "email": "localvoid@gmail.com",
+    "url": "https://github.com/localvoid"
+  },
+  "keywords": [
+    "inject",
+    "code"
+  ],
+  "homepage": "https://github.com/localvoid/incode",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/localvoid/incode"
+  },
+  "bugs": {
+    "url": "https://github.com/localvoid/incode/issues"
+  },
+  "github": "https://github.com/localvoid/incode",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dist": "npm run dist:es2015 && npm run dist:cjs",
+    "dist:es2015": "./node_modules/.bin/tsc --project ./tsconfig.build.es2015.json",
+    "dist:cjs": "./node_modules/.bin/tsc --project ./tsconfig.build.cjs.json",
+    "lint": "./node_modules/.bin/tslint --project ./tsconfig.json",
+    "test": "./node_modules/.bin/mocha --reporter mocha-iko-reporter -r ../../node_modules/ts-node/register __tests__/index.ts",
+    "test:coverage": "./node_modules/.bin/nyc ../../node_modules/.bin/mocha __tests__/index.ts"
+  },
+  "peerDependencies": {},
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.78",
+    "@types/mocha": "^2.2.43",
+    "iko": "^0.4.0",
+    "ivi-tslint-rules": "^0.1.3",
+    "lodash": "^4.17.4",
+    "mocha": "^4.0.1",
+    "mocha-iko-reporter": "^0.1.1",
+    "nyc": "^11.2.1",
+    "rtext": "^0.1.0",
+    "rtext-writer": "^0.1.1",
+    "ts-node": "^3.3.0",
+    "tslib": "^1.8.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3"
+  },
+  "nyc": {
+    "require": [
+      "../../node_modules/ts-node/register"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "cache": true
+  }
+}

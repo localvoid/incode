@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "declaration": false,
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "importHelpers": true,
+    "noEmitHelpers": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
