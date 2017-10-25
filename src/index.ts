@@ -1,17 +1,17 @@
 import { merge } from "lodash";
 
 enum DirectiveType {
-  Start = 0,
+  Begin = 0,
   End = 1,
   Assign = 2,
   Merge = 3,
   Emit = 4,
 }
 
-type Directive = StartDirective | EndDirective | AssignDirective | MergeDirective | EmitDirective;
+type Directive = BeginDirective | EndDirective | AssignDirective | MergeDirective | EmitDirective;
 
-interface StartDirective {
-  readonly type: DirectiveType.Start;
+interface BeginDirective {
+  readonly type: DirectiveType.Begin;
   readonly arg: null;
   readonly padding: string;
   readonly start: number;
@@ -108,8 +108,8 @@ export function inject(
 
 function directiveTypeFromString(s: string): DirectiveType {
   switch (s) {
-    case "start":
-      return DirectiveType.Start;
+    case "begin":
+      return DirectiveType.Begin;
     case "end":
       return DirectiveType.End;
     case "assign":
@@ -127,7 +127,7 @@ function parseDirective(s: string): { type: DirectiveType, arg: {} | null } {
   if (pStart !== -1) {
     const type = directiveTypeFromString(s.substring(0, pStart));
     switch (type) {
-      case DirectiveType.Start:
+      case DirectiveType.Begin:
       case DirectiveType.End:
         throw new InvalidDirectiveError(
           `Invalid directive. ${DirectiveType[type]} directive should not have arguments`,
@@ -251,7 +251,7 @@ function enterScope(
   while (index < directives.length) {
     const directive = directives[index++];
     switch (directive.type) {
-      case DirectiveType.Start:
+      case DirectiveType.Begin:
         index = enterScope(text, regions, directives, index, scopes + 1, data);
         break;
       case DirectiveType.End:

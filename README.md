@@ -45,7 +45,7 @@ class User {
 
 ## Directives
 
-- `start` - start local scope
+- `begin` - begin local scope
 - `end` - end region
 - `assign(data: {})` - assign data to a local scope `Object.assign`
 - `merge(data: {})` - merge data to a local scope `_.merge`
