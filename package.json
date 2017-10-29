@@ -3,7 +3,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/js/index.js",
   "typings": "dist/typings/index.d.ts",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Code injection library",
   "license": "MIT",
   "author": {
@@ -31,7 +31,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "dist": "npm run dist:es2015 && npm run dist:cjs",
+    "dist": "rm -rf ./dist && npm run dist:es2015 && npm run dist:cjs",
     "dist:es2015": "./node_modules/.bin/tsc --project ./tsconfig.build.es2015.json",
     "dist:cjs": "./node_modules/.bin/tsc --project ./tsconfig.build.cjs.json",
     "lint": "./node_modules/.bin/tslint --project ./tsconfig.json",

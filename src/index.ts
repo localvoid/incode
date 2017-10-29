@@ -100,7 +100,7 @@ export function inject(
   let start = 0;
   for (const region of extractRegions(text, directiveMatcher)) {
     r += text.substring(start, region.start);
-    r += ensureStringEndsWithNewline(cb(region));
+    r += ensureStringStartsWithNewline(ensureStringEndsWithNewline(cb(region)));
     start = region.end;
   }
   return r += text.substring(start);
@@ -303,6 +303,16 @@ function positionFromOffset(s: string, offset: number): SourcePosition {
 
 function positionToString(pos: SourcePosition): string {
   return `[${pos.line}:${pos.col}]`;
+}
+
+function ensureStringStartsWithNewline(s: string): string {
+  if (s.length === 0) {
+    return "\n";
+  }
+  if (s.charCodeAt(0) !== 10) { // \n
+    return "\n" + s;
+  }
+  return s;
 }
 
 function ensureStringEndsWithNewline(s: string): string {
