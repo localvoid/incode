@@ -3,7 +3,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/js/index.js",
   "typings": "dist/typings/index.d.ts",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Code injection library",
   "license": "MIT",
   "author": {

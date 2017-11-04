@@ -44,14 +44,14 @@ interface MergeDirective {
 
 interface EmitDirective {
   readonly type: DirectiveType.Emit;
-  readonly arg: string;
+  readonly arg: any[];
   readonly padding: string;
   readonly start: number;
   readonly end: number;
 }
 
 export interface InjectableRegion {
-  readonly type: string;
+  readonly args: any[];
   readonly data: {};
   readonly padding: string;
   readonly start: number;
@@ -119,7 +119,7 @@ function directiveTypeFromString(s: string): DirectiveType {
     case "emit":
       return DirectiveType.Emit;
   }
-  throw new InvalidDirectiveError(`Invalid directive type: ${s}`);
+  throw new InvalidDirectiveError(`Invalid directive type: ${s}.`);
 }
 
 function parseDirective(s: string): { type: DirectiveType, arg: {} | null } {
@@ -130,37 +130,40 @@ function parseDirective(s: string): { type: DirectiveType, arg: {} | null } {
       case DirectiveType.Begin:
       case DirectiveType.End:
         throw new InvalidDirectiveError(
-          `Invalid directive. ${DirectiveType[type]} directive should not have arguments`,
+          `Invalid directive. ${DirectiveType[type]} directive should not have arguments.`,
         );
     }
     const pEnd = s.lastIndexOf(")");
     if (pEnd === -1) {
       throw new InvalidDirectiveError(
-        `Invalid directive. Unable to find closing parenthesis in a directive "${s}"`,
+        `Invalid directive. Unable to find closing parenthesis in a directive "${s}".`,
       );
     }
     const sArg = s.substring(pStart + 1, pEnd);
     let arg;
-    try {
-      arg = JSON.parse(sArg);
-    } catch {
-      throw new InvalidDirectiveError(
-        `Invalid directive. Unable to parse(JSON.parse) directive argument "${sArg}"`,
-      );
-    }
     switch (type) {
       case DirectiveType.Assign:
       case DirectiveType.Merge:
+        try {
+          arg = JSON.parse(sArg);
+        } catch {
+          throw new InvalidDirectiveError(
+            `Invalid directive. Unable to parse(JSON.parse) directive argument "${sArg}".`,
+          );
+        }
+
         if (typeof arg !== "object" || arg === null) {
           throw new InvalidDirectiveError(
-            `Invalid ${DirectiveType[type]} directive. Argument should have an object type`,
+            `Invalid ${DirectiveType[type]} directive. Argument should have an object type.`,
           );
         }
         break;
       case DirectiveType.Emit:
-        if (typeof arg !== "string") {
+        try {
+          arg = JSON.parse(`[${sArg}]`);
+        } catch {
           throw new InvalidDirectiveError(
-            `Invalid Emit directive. Argument should have a string type`,
+            `Invalid directive. Unable to parse(JSON.parse) directive argument "[${sArg}]".`,
           );
         }
         break;
@@ -173,7 +176,7 @@ function parseDirective(s: string): { type: DirectiveType, arg: {} | null } {
       case DirectiveType.Merge:
       case DirectiveType.Emit:
         throw new InvalidDirectiveError(
-          `Invalid directive. ${DirectiveType[type]} directive should have arguments`,
+          `Invalid directive. ${DirectiveType[type]} directive should have arguments.`,
         );
     }
     return { type, arg: null };
@@ -217,7 +220,7 @@ function enterEmit(
   directives: Directive[],
   index: number,
   data: {},
-  type: string,
+  args: string[],
   padding: string,
   start: number,
 ): number {
@@ -225,7 +228,7 @@ function enterEmit(
     const directive = directives[index++];
     switch (directive.type) {
       case DirectiveType.End:
-        regions.push({ type, data, padding, start, end: directive.start });
+        regions.push({ args, data, padding, start, end: directive.start });
         return index;
       default:
         throw new InvalidRegionError(
@@ -277,14 +280,14 @@ function enterScope(
     }
   }
   if (scopes > 0) {
-    throw new InvalidRegionError(`All scopes should end with End directive`);
+    throw new InvalidRegionError(`All scopes should end with End directive.`);
   }
   return index;
 }
 
 function positionFromOffset(s: string, offset: number): SourcePosition {
   if (offset > s.length) {
-    throw new Error("Invalid offset. Offset is pointing outside of text");
+    throw new Error("Invalid offset. Offset is pointing outside of text.");
   }
   let line = 1;
   let col = 1;

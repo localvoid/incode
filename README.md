@@ -5,9 +5,8 @@
 Code with injectable regions:
 
 ```js
-// inj:assign({ schema: "User" })
 class User {
-  // inj:emit("pck")
+  // inj:emit("User", "pck")
   // inj:end
 }
 ```
@@ -21,7 +20,7 @@ const s = inject(
   text, // code with injectable regions
   createDirectiveMatcher("inj"),
   (region) => {
-    return `${region.type}() { console.log("${region.data.schema} injected method"); }`;
+    return `${region.args[1]}() { console.log("${region.args[0]} injected method"); }`;
   },
 );
 ```
@@ -47,9 +46,9 @@ class User {
 
 - `begin` - begin local scope
 - `end` - end region
-- `assign(data: {})` - assign data to a local scope `Object.assign`
-- `merge(data: {})` - merge data to a local scope `_.merge`
-- `emit(type: string)` - emit code
+- `assign(data: JSON)` - assign data to a local scope `Object.assign`
+- `merge(data: JSON)` - merge data to a local scope `_.merge`
+- `emit(...args: Array<JSON>)` - emit code
 
 ## API
 
@@ -61,7 +60,7 @@ function createDirectiveMatcher(prefix: string): RegExp;
 
 ```ts
 interface InjectableRegion {
-  readonly type: string;
+  readonly args: any[];
   readonly data: {};
   readonly padding: string;
   readonly start: number;
