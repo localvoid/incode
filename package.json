@@ -1,9 +1,53 @@
 {
   "name": "incode",
-  "main": "dist/cjs/index.js",
-  "module": "dist/js/index.js",
-  "typings": "dist/typings/index.d.ts",
   "version": "0.3.1",
+  "main": "dist/main/index.js",
+  "module": "dist/module/index.js",
+  "es2016": "dist/es2016/index.js",
+  "typings": "dist/typings/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src",
+    "!src/**/__tests__",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run clean && npm run dist",
+    "clean": "rm -rf ./dist",
+    "dist": "npm run dist:main && npm run dist:module && npm run dist:es2016",
+    "dist:main": "tsc -p ./tsconfig.build.main.json",
+    "dist:module": "tsc -p ./tsconfig.build.module.json",
+    "dist:es2016": "tsc -p ./tsconfig.build.es2016.json",
+    "lint": "tslint --format codeFrame --project ./tsconfig.json",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
+    "test:coverage": "jest --coverage"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint && yarn test"
+    }
+  },
+  "peerDependencies": {},
+  "dependencies": {
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.2.2",
+    "@types/lodash": "^4.14.108",
+    "@types/node": "^10.1.0",
+    "codecov": "^3.0.2",
+    "husky": "^1.0.0-rc.4",
+    "ivi-tslint-rules": "^0.1.4",
+    "jest": "^22.4.3",
+    "ts-jest": "^22.4.6",
+    "tslib": "^1.9.1",
+    "tslint": "^5.10.0",
+    "typescript": "^2.8.3"
+  },
   "description": "Code injection library",
   "license": "MIT",
   "author": {
@@ -23,55 +67,5 @@
   "bugs": {
     "url": "https://github.com/localvoid/incode/issues"
   },
-  "github": "https://github.com/localvoid/incode",
-  "files": [
-    "dist",
-    "src",
-    "README.md",
-    "LICENSE"
-  ],
-  "scripts": {
-    "dist": "rm -rf ./dist && npm run dist:es2015 && npm run dist:cjs",
-    "dist:es2015": "./node_modules/.bin/tsc --project ./tsconfig.build.es2015.json",
-    "dist:cjs": "./node_modules/.bin/tsc --project ./tsconfig.build.cjs.json",
-    "lint": "./node_modules/.bin/tslint --project ./tsconfig.json",
-    "test": "./node_modules/.bin/mocha --reporter mocha-iko-reporter -r ../../node_modules/ts-node/register __tests__/index.ts",
-    "test:coverage": "./node_modules/.bin/nyc ../../node_modules/.bin/mocha __tests__/index.ts"
-  },
-  "peerDependencies": {},
-  "dependencies": {
-    "lodash": "^4.17.4"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.99",
-    "@types/mocha": "^2.2.48",
-    "iko": "^0.4.0",
-    "ivi-tslint-rules": "^0.1.3",
-    "lodash": "^4.17.4",
-    "mocha": "^5.0.0",
-    "mocha-iko-reporter": "^0.1.1",
-    "nyc": "^11.4.1",
-    "rtext": "^0.1.0",
-    "rtext-writer": "^0.1.1",
-    "ts-node": "^4.1.0",
-    "tslib": "^1.9.0",
-    "tslint": "^5.9.1",
-    "typescript": "^2.7.1"
-  },
-  "nyc": {
-    "require": [
-      "../../node_modules/ts-node/register"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "include": [
-      "src/**/*.ts"
-    ],
-    "reporter": [
-      "lcov",
-      "text-summary"
-    ],
-    "cache": true
-  }
+  "github": "https://github.com/localvoid/incode"
 }

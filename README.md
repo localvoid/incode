@@ -1,3 +1,5 @@
+# [incode](https://github.com/localvoid/incode) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/localvoid/incode/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/incode.svg)](https://www.npmjs.com/package/incode) [![codecov](https://codecov.io/gh/localvoid/incode/branch/master/graph/badge.svg)](https://codecov.io/gh/localvoid/incode) [![CircleCI Status](https://circleci.com/gh/localvoid/incode.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/localvoid/incode) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/localvoid/incode)
+
 `incode` is a library for building code injectors.
 
 ## Example
